@@ -148,12 +148,19 @@ class Freeswitchesl {
 
 
         if ($this->sorts == "json" && $type == "event") {
-            $response = $this->typeClear($response);
-            $responsedata = simplexml_load_string($response);
-            $response = [];
-            foreach ($responsedata->headers->children() as $key => $value) {
-                $response[(string)$key] = (string)$value;
+            try {
+                $response = $this->typeClear($response);
+                $responsedata = simplexml_load_string($response);
+                $response = [];
+
+                foreach ($responsedata->headers->children() as $key => $value) {
+                    $response[(string)$key] = (string)$value;
+                }
+            } catch (\Exception $ex) {
+                print(__METHOD__.": ERROR -> {$ex->getMessage()}");
+                $response = ["error" => "EPARSING", "message" => $ex->getMessage()];
             }
+            
             return json_encode($response);
         } else {
             $response = $this->eliminateLine($response);
